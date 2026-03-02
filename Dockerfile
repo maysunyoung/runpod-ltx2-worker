@@ -24,16 +24,8 @@ WORKDIR /app
 # Install RunPod SDK
 RUN pip install runpod
 
-# Install LTX-2 packages (use git install for latest)
-RUN pip install git+https://github.com/Lightricks/LTX-2.git
-
-# Install additional dependencies
-RUN pip install \
-    imageio \
-    imageio-ffmpeg \
-    accelerate \
-    safetensors \
-    huggingface_hub
+# LTX-2 via Hugging Face diffusers (has LTX2Pipeline.from_pretrained)
+RUN pip install "diffusers[torch]>=0.32.0" transformers accelerate safetensors huggingface_hub
 
 # Copy handler
 COPY handler.py /app/handler.py
