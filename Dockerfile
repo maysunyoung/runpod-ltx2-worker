@@ -26,8 +26,9 @@ WORKDIR /app
 RUN pip install runpod
 
 # LTX2Pipeline is in diffusers main; PyPI may not have it yet - install from git
+# av (PyAV) required by diffusers.pipelines.ltx2.export_utils for video encoding
 RUN pip install "git+https://github.com/huggingface/diffusers.git" \
-    transformers accelerate safetensors huggingface_hub
+    transformers accelerate safetensors huggingface_hub av
 
 # Copy handler
 COPY handler.py /app/handler.py
