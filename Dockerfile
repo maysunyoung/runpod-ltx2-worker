@@ -24,8 +24,9 @@ WORKDIR /app
 # Install RunPod SDK
 RUN pip install runpod
 
-# LTX-2 via Hugging Face diffusers (has LTX2Pipeline.from_pretrained)
-RUN pip install "diffusers[torch]>=0.32.0" transformers accelerate safetensors huggingface_hub
+# LTX2Pipeline is in diffusers main; PyPI may not have it yet - install from git
+RUN pip install "git+https://github.com/huggingface/diffusers.git" \
+    transformers accelerate safetensors huggingface_hub
 
 # Copy handler
 COPY handler.py /app/handler.py
