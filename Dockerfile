@@ -1,7 +1,8 @@
 # LTX-2 Video Generation Worker for RunPod Serverless
 # Optimized for H100 (80GB) - fastest generation
+# PyTorch 2.6+ required: diffusers main uses custom_op that needs torch 2.5+ (infer_schema)
 
-FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
+FROM runpod/pytorch:1.0.3-cu1290-torch260-ubuntu2204
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
