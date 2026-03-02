@@ -29,17 +29,45 @@ Output format:
 }
 """
 
-import base64
 import os
+
+# Force all HuggingFace cache and temp I/O onto the RunPod volume (before any hf imports)
+RUNPOD_VOLUME = "/runpod-volume"
+# Disable XET to use normal HTTP download (XET reconstruction can use temp space elsewhere)
+os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
+for _key, _val in (
+    ("HF_HOME", f"{RUNPOD_VOLUME}/huggingface"),
+    ("HF_HUB_CACHE", f"{RUNPOD_VOLUME}/huggingface/hub"),
+    ("HF_XET_CACHE", f"{RUNPOD_VOLUME}/huggingface/xet"),
+    ("TRANSFORMERS_CACHE", f"{RUNPOD_VOLUME}/huggingface"),
+    ("TORCH_HOME", f"{RUNPOD_VOLUME}/torch"),
+    ("TMPDIR", f"{RUNPOD_VOLUME}/tmp"),
+    ("TEMP", f"{RUNPOD_VOLUME}/tmp"),
+    ("TMP", f"{RUNPOD_VOLUME}/tmp"),
+):
+    os.environ.setdefault(_key, _val)
+for _d in (
+    f"{RUNPOD_VOLUME}/huggingface/hub",
+    f"{RUNPOD_VOLUME}/huggingface/xet",
+    f"{RUNPOD_VOLUME}/torch",
+    f"{RUNPOD_VOLUME}/tmp",
+):
+    os.makedirs(_d, exist_ok=True)
+
+import base64
 import tempfile
 import time
 from typing import Optional
+
+# Use volume for Python temp files too
+tempfile.tempdir = os.environ.get("TMPDIR", tempfile.gettempdir())
 
 import runpod
 import torch
 
 
 PIPELINE = None
+HF_CACHE_DIR = f"{RUNPOD_VOLUME}/huggingface"
 
 
 def load_pipeline():
@@ -57,6 +85,7 @@ def load_pipeline():
     PIPELINE = LTX2Pipeline.from_pretrained(
         "Lightricks/LTX-2",
         torch_dtype=torch.bfloat16,
+        cache_dir=HF_CACHE_DIR,
     )
     PIPELINE.to("cuda")
 
@@ -107,7 +136,7 @@ def generate_video(
 
     from diffusers.pipelines.ltx2.export_utils import encode_video
 
-    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as f:
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False, dir=os.environ.get("TMPDIR")) as f:
         output_path = f.name
 
     try:
