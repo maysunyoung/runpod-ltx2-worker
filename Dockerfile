@@ -6,6 +6,7 @@ FROM runpod/pytorch:1.0.3-cu1290-torch260-ubuntu2204
 
 # Set environment variables - all caches and temp on volume to avoid "No space left on device"
 ENV PYTHONUNBUFFERED=1
+ENV PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 ENV HF_HUB_DISABLE_XET=1
 ENV HF_HOME=/runpod-volume/huggingface
 ENV HF_HUB_CACHE=/runpod-volume/huggingface/hub

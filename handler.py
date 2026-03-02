@@ -87,7 +87,8 @@ def load_pipeline():
         torch_dtype=torch.bfloat16,
         cache_dir=HF_CACHE_DIR,
     )
-    PIPELINE.to("cuda")
+    # Use CPU offload so model runs on GPUs with ~20GB VRAM (otherwise OOM on full .to("cuda"))
+    PIPELINE.enable_sequential_cpu_offload()
 
     print(f"Pipeline loaded in {time.time() - start:.1f}s")
     return PIPELINE
