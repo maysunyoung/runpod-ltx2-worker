@@ -4,11 +4,15 @@
 
 FROM runpod/pytorch:1.0.3-cu1290-torch260-ubuntu2204
 
-# Set environment variables
+# Set environment variables - all caches and temp on volume to avoid "No space left on device"
 ENV PYTHONUNBUFFERED=1
 ENV HF_HOME=/runpod-volume/huggingface
+ENV HF_HUB_CACHE=/runpod-volume/huggingface/hub
 ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
 ENV TORCH_HOME=/runpod-volume/torch
+ENV TMPDIR=/runpod-volume/tmp
+ENV TEMP=/runpod-volume/tmp
+ENV TMP=/runpod-volume/tmp
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -30,8 +34,11 @@ RUN pip install runpod
 RUN pip install "git+https://github.com/huggingface/diffusers.git" \
     transformers accelerate safetensors huggingface_hub av
 
-# Copy handler
+# Copy handler and entrypoint
 COPY handler.py /app/handler.py
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-# Set the entrypoint
+# Ensure cache/tmp dirs on volume exist at runtime (volume is mounted by RunPod)
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["python", "-u", "/app/handler.py"]

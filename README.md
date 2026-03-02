@@ -176,6 +176,7 @@ curl -H "Authorization: Bearer $API_KEY" \
 ## Troubleshooting
 
 - **Cold start slow?** 首次请求需 2–5 分钟拉模型，可设 Min Workers: 1 保活。
+- **No space left on device?** 必须挂载 Volume 且至少 **100GB**；缓存与临时文件会写入 `/runpod-volume`，不占系统盘。
 - **OOM?** 降低 `width`/`height` 或 `num_frames`。
 - **Quality?** 提高 `num_inference_steps`、`guidance_scale`。
 
