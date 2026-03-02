@@ -42,6 +42,11 @@ jobs:
           cache-to: type=gha,mode=max
           provenance: false
 
+      - name: Verify LTX2 import in image
+        run: |
+          docker pull ghcr.io/${{ github.repository_owner }}/ltx2-worker:latest
+          docker run --rm ghcr.io/${{ github.repository_owner }}/ltx2-worker:latest python -c "from diffusers.pipelines.ltx2 import LTX2Pipeline; from diffusers.pipelines.ltx2.export_utils import encode_video; print('LTX2 import OK')"
+
       # 可选：同时推送到 Docker Hub（需在 Settings → Variables 添加 DOCKERHUB_USERNAME，Secrets 添加 DOCKERHUB_TOKEN）
       - name: Login to Docker Hub
         if: vars.DOCKERHUB_USERNAME != ''
